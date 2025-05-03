@@ -3,6 +3,8 @@ import cv2
 import numpy as np
 import os
 import base64
+import time
+import uuid
 from werkzeug.utils import secure_filename
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
@@ -121,15 +123,28 @@ def upload():
     filters = request.form.getlist('filter')
 
     if file:
-        filename = secure_filename(file.filename)
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        # Générer un nom unique pour éviter les écrasements de fichiers
+        timestamp = str(int(time.time()))
+        unique_id = str(uuid.uuid4().hex[:8])
+        
+        original_filename = secure_filename(file.filename)
+        # Préserver l'extension du fichier
+        file_extension = os.path.splitext(original_filename)[1]
+        
+        # Créer un nouveau nom de fichier avec timestamp et identifiant unique
+        unique_filename = f"{timestamp}_{unique_id}{file_extension}"
+        
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
         file.save(filepath)
 
         image = cv2.imread(filepath)
         
         # Vérifier si l'image est correctement chargée
         if image is None:
-            flash('Erreur lors du chargement de l\'image. Veuillez réessayer avec une autre image.', 'danger')
+            flash('خطأ في تحميل الصورة. الرجاء المحاولة بصورة أخرى.', 'danger')
+            # Supprimer le fichier en cas d'erreur
+            if os.path.exists(filepath):
+                os.remove(filepath)
             return redirect(url_for('index'))
             
         # Obtenir les dimensions de l'image pour adapter les paramètres de filtres
@@ -259,7 +274,8 @@ def upload():
                 temp = cv2.resize(image, (width//16, height//16), interpolation=cv2.INTER_LINEAR)
                 image = cv2.resize(temp, (width, height), interpolation=cv2.INTER_NEAREST)
 
-        output_filename = 'edited_' + filename
+        # Générer un nom unique pour l'image modifiée également
+        output_filename = f"edited_{timestamp}_{unique_id}{file_extension}"
         output_path = os.path.join(app.config['UPLOAD_FOLDER'], output_filename)
         cv2.imwrite(output_path, image)
         
@@ -307,8 +323,8 @@ def upload():
         operations_str = ', '.join(all_operations) if all_operations else "لا تعديلات"
         
         filter_history = FilterHistory(
-            original_filename=filename,
-            edited_filename=output_filename,
+            original_filename=unique_filename,  # Utiliser le nom de fichier unique
+            edited_filename=output_filename,    # Utiliser le nom de fichier modifié unique
             filters_applied=operations_str,
             user_id=session['user_id']
         )
@@ -317,7 +333,7 @@ def upload():
         db.session.commit()
 
         return render_template('result.html', 
-                              original=filename, 
+                              original=unique_filename, 
                               edited=output_filename, 
                               operations=operations_str)
     else:
