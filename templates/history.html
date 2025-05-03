@@ -252,6 +252,40 @@
                 display: block;
             }
         }
+        
+        /* Styles pour la fenêtre modale */
+        .modal-content {
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .tool-btn {
+            transition: all 0.2s ease;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .tool-btn:hover {
+            background: var(--light-color) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+        }
+        
+        .tool-btn.active {
+            background: var(--primary-color) !important;
+            color: white;
+        }
+        
+        #modalImage {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        #modalDownloadBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
     </style>
 </head>
 <body>
@@ -390,41 +424,41 @@
 <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header" style="background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%); color: white; border-bottom: none;">
                 <h5 class="modal-title" id="imageModalTitle"></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="background-color: white;"></button>
             </div>
-            <div class="modal-body">
-                <div class="edit-tools">
-                    <button type="button" class="tool-btn" id="modal-zoom-in-btn">
+            <div class="modal-body" style="padding: 20px;">
+                <div class="edit-tools" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; background-color: var(--light-color); padding: 15px; border-radius: 10px; justify-content: center;">
+                    <button type="button" class="tool-btn" id="modal-zoom-in-btn" style="background: white; border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 15px; display: flex; align-items: center; gap: 5px;">
                         <i class="fas fa-search-plus"></i> تكبير
                     </button>
-                    <button type="button" class="tool-btn" id="modal-zoom-out-btn">
+                    <button type="button" class="tool-btn" id="modal-zoom-out-btn" style="background: white; border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 15px; display: flex; align-items: center; gap: 5px;">
                         <i class="fas fa-search-minus"></i> تصغير
                     </button>
-                    <button type="button" class="tool-btn" id="modal-rotate-left-btn">
+                    <button type="button" class="tool-btn" id="modal-rotate-left-btn" style="background: white; border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 15px; display: flex; align-items: center; gap: 5px;">
                         <i class="fas fa-undo"></i> تدوير لليسار
                     </button>
-                    <button type="button" class="tool-btn" id="modal-rotate-right-btn">
+                    <button type="button" class="tool-btn" id="modal-rotate-right-btn" style="background: white; border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 15px; display: flex; align-items: center; gap: 5px;">
                         <i class="fas fa-redo"></i> تدوير لليمين
                     </button>
-                    <button type="button" class="tool-btn" id="modal-flip-h-btn">
+                    <button type="button" class="tool-btn" id="modal-flip-h-btn" style="background: white; border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 15px; display: flex; align-items: center; gap: 5px;">
                         <i class="fas fa-arrows-alt-h"></i> قلب أفقي
                     </button>
-                    <button type="button" class="tool-btn" id="modal-flip-v-btn">
+                    <button type="button" class="tool-btn" id="modal-flip-v-btn" style="background: white; border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 15px; display: flex; align-items: center; gap: 5px;">
                         <i class="fas fa-arrows-alt-v"></i> قلب رأسي
                     </button>
-                    <button type="button" class="tool-btn" id="modal-reset-btn">
+                    <button type="button" class="tool-btn" id="modal-reset-btn" style="background: white; border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 15px; display: flex; align-items: center; gap: 5px;">
                         <i class="fas fa-sync-alt"></i> إعادة تعيين
                     </button>
                 </div>
-                <div class="text-center">
-                    <img id="modalImage" src="" class="modal-img">
+                <div class="text-center" style="background-color: #f8f9fa; border-radius: 10px; padding: 20px; box-shadow: inset 0 0 5px rgba(0,0,0,0.1);">
+                    <img id="modalImage" src="" class="img-fluid" style="max-height: 60vh; border-radius: 8px; transition: all 0.3s ease;">
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
-                <a id="modalDownloadBtn" href="" class="btn btn-custom" download>
+            <div class="modal-footer" style="border-top: none; padding: 15px 20px;">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 8px; padding: 8px 20px;">إغلاق</button>
+                <a id="modalDownloadBtn" href="" class="btn" style="background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%); color: white; border-radius: 8px; padding: 8px 20px; transition: all 0.3s ease;" download>
                     <i class="fas fa-download"></i> تحميل الصورة
                 </a>
             </div>
@@ -443,14 +477,21 @@
         // Réinitialiser les transformations
         resetModalTransform();
         
-        // Configurer la modal
-        document.getElementById('modalImage').src = src;
+        // Configurer la modal avec une animation
+        const modalImage = document.getElementById('modalImage');
+        modalImage.style.opacity = '0';
+        modalImage.src = src;
         document.getElementById('imageModalTitle').textContent = title;
         document.getElementById('modalDownloadBtn').href = src;
         
         // Afficher la modal
         var imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
         imageModal.show();
+        
+        // Animation fade-in
+        setTimeout(() => {
+            modalImage.style.opacity = '1';
+        }, 100);
     }
     
     document.addEventListener('DOMContentLoaded', function() {
@@ -489,6 +530,18 @@
         
         document.getElementById('modal-reset-btn').addEventListener('click', function() {
             resetModalTransform();
+        });
+
+        // Marquer le bouton actif lors du clic
+        const toolButtons = document.querySelectorAll('.tool-btn');
+        toolButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Effet visuel au clic
+                this.classList.add('active');
+                setTimeout(() => {
+                    this.classList.remove('active');
+                }, 200);
+            });
         });
     });
     
