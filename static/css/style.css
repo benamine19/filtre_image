@@ -1,0 +1,371 @@
+:root {
+    --primary-color: #6366f1;
+    --secondary-color: #818cf8;
+    --accent-color: #4f46e5;
+    --text-color: #1f2937;
+    --light-color: #f3f4f6;
+    --border-color: #e5e7eb;
+    --danger-color: #ef4444;
+    --success-color: #10b981;
+}
+
+/* Styles généraux */
+body {
+    font-family: 'Cairo', sans-serif;
+}
+
+/* Styles for pages with sidebar layout */
+.main-container {
+    display: flex;
+    max-width: 1200px;
+    margin: 0 auto;
+    border-radius: 20px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    background: white;
+    height: calc(100vh - 80px);
+}
+
+.sidebar {
+    flex: 1;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    min-height: 100%;
+    display: none;
+}
+
+.sidebar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.8) 0%, rgba(79, 70, 229, 0.8) 100%);
+}
+
+.sidebar-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 40px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.main-content {
+    flex: 2;
+    padding: 40px;
+    max-height: 100%;
+    overflow-y: auto;
+}
+
+@media (min-width: 992px) {
+    .sidebar {
+        display: block;
+    }
+}
+
+/* Styles pour les boutons */
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Styles pour la barre de progression */
+#progressContainer {
+    width: 100%;
+    height: 10px;
+    background-color: var(--light-color);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 15px;
+}
+
+#progressBar {
+    width: 1%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+    border-radius: 10px;
+    transition: width 0.4s ease;
+}
+
+#progressText {
+    margin-top: 10px;
+    font-size: 16px;
+    color: var(--text-color);
+    margin-bottom: 20px;
+}
+
+/* Styles pour les filtres */
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.filter-item {
+    background-color: white;
+    padding: 15px;
+    border-radius: 12px;
+    transition: all 0.3s;
+    cursor: pointer;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.filter-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(99, 102, 241, 0.15);
+}
+
+.filter-item.active {
+    background-color: rgba(99, 102, 241, 0.1);
+    border: 2px solid var(--primary-color);
+    box-shadow: 0 5px 15px rgba(99, 102, 241, 0.2);
+}
+
+.filter-preview {
+    width: 70px;
+    height: 70px;
+    margin: 5px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+}
+
+.filter-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.filter-preview:hover {
+    transform: scale(1.05);
+    border-color: var(--secondary-color);
+    box-shadow: 0 5px 15px rgba(99, 102, 241, 0.2);
+}
+
+.filter-preview.active {
+    border-color: var(--primary-color);
+    border-width: 3px;
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+}
+
+.filter-preview span {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(0,0,0,0.7);
+    color: white;
+    font-size: 10px;
+    padding: 3px 0;
+    text-align: center;
+}
+
+.filter-previews {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* Filter preview effects */
+.filter-preview[data-filter="sepia"] img {
+    filter: sepia(100%);
+}
+
+.filter-preview[data-filter="gray"] img {
+    filter: grayscale(100%);
+}
+
+.filter-preview[data-filter="blur"] img {
+    filter: blur(2px);
+}
+
+.filter-preview[data-filter="sharpen"] img {
+    filter: contrast(1.5) brightness(1.2);
+}
+
+.filter-preview[data-filter="edge"] img {
+    filter: grayscale(100%) contrast(3);
+}
+
+.filter-preview[data-filter="pencil"] img {
+    filter: grayscale(100%) contrast(2) brightness(1.5);
+}
+
+.filter-preview[data-filter="invert"] img {
+    filter: invert(100%);
+}
+
+.filter-preview[data-filter="thermal"] img {
+    filter: hue-rotate(180deg) saturate(3);
+}
+
+.filter-preview[data-filter="emboss"] img {
+    filter: contrast(2) grayscale(50%);
+}
+
+.filter-preview[data-filter="pixel"] img {
+    image-rendering: pixelated;
+    transform: scale(0.5);
+    transform-origin: center;
+}
+
+/* Styles pour les éléments de l'éditeur */
+.editor-container {
+    position: relative;
+    margin: 20px 0;
+    border: 2px dashed #ccc;
+    border-radius: 10px;
+    padding: 20px;
+    background-color: #f9f9f9;
+}
+
+.editor-tools {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 15px 0;
+    flex-wrap: wrap;
+}
+
+.tool-btn {
+    padding: 8px 15px;
+    border-radius: 5px;
+    background: #f0f0f0;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin: 0 5px;
+}
+
+.tool-btn:hover {
+    background: #e0e0e0;
+    transform: translateY(-2px);
+}
+
+.tool-btn:active {
+    transform: translateY(0);
+}
+
+.tool-btn.active-tool {
+    background: #4A90E2;
+    color: white;
+}
+
+/* Styles pour la page de résultat */
+.result-image {
+    max-width: 100%;
+    height: auto;
+    transition: all 0.3s ease;
+}
+
+.image-container {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+/* Styles pour la page d'historique */
+.history-item {
+    transition: all 0.3s ease;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.history-item:hover {
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    transform: translateY(-5px);
+}
+
+/* Styles pour les badges de filtres */
+.filter-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+    color: white;
+    padding: 5px 12px;
+    border-radius: 20px;
+    margin: 3px;
+    font-size: 12px;
+    box-shadow: 0 2px 5px rgba(99, 102, 241, 0.2);
+}
+
+/* Styles pour les boutons d'actions personnalisés */
+.btn-custom {
+    background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: none;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+    color: white;
+}
+
+/* Animation pour les cards */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.5s ease forwards;
+}
+
+/* Feature items for sidebar */
+.feature-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.feature-icon {
+    width: 24px;
+    margin-left: 10px;
+    color: white;
+}

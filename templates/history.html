@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سجل التعديلات</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #818cf8;
+            --accent-color: #4f46e5;
+            --text-color: #1f2937;
+            --light-color: #f3f4f6;
+            --border-color: #e5e7eb;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            font-family: 'Cairo', sans-serif;
+        }
+        
+        .main-container {
+            display: flex;
+            max-width: 1200px;
+            margin: 0 auto;
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            background: white;
+        }
+        
+        .sidebar {
+            flex: 1;
+            background-image: url('https://images.unsplash.com/photo-1590486803833-1c5dc8ddd4c8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=987&q=80');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            min-height: 100%;
+            display: none;
+        }
+        
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.8) 0%, rgba(79, 70, 229, 0.8) 100%);
+        }
+        
+        .sidebar-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 40px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .main-content {
+            flex: 2;
+            padding: 40px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .history-header h2 {
+            color: var(--text-color);
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        .history-item {
+            background: var(--light-color);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            transition: transform 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+        }
+        
+        .history-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.15);
+        }
+        
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 15px;
+        }
+        
+        .history-header h5 {
+            color: var(--text-color);
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .image-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        
+        .image-box {
+            width: 48%;
+            text-align: center;
+            background-color: white;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+        
+        .image-box h6 {
+            color: var(--text-color);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .image-box img {
+            max-width: 100%;
+            border-radius: 8px;
+            height: 200px;
+            object-fit: cover;
+            transition: transform 0.3s;
+            cursor: pointer;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+        }
+        
+        .image-box img:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.2);
+        }
+        
+        .filter-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            margin: 3px;
+            font-size: 12px;
+            box-shadow: 0 2px 5px rgba(99, 102, 241, 0.2);
+        }
+        
+        .date-info {
+            color: #6b7280;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .date-info i {
+            margin-left: 5px;
+            color: var(--primary-color);
+        }
+        
+        .btn-custom {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            transition: all 0.3s;
+            border: none;
+            font-weight: 600;
+        }
+        
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+            color: white;
+        }
+        
+        .empty-history {
+            text-align: center;
+            padding: 70px 0;
+            background: var(--light-color);
+            border-radius: 15px;
+        }
+        
+        .empty-history i {
+            font-size: 60px;
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+        }
+        
+        .modal-content {
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        
+        .modal-header {
+            background-color: var(--light-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .modal-title {
+            color: var(--text-color);
+            font-weight: 600;
+        }
+        
+        .modal-img {
+            max-width: 100%;
+            max-height: 70vh;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+        }
+        
+        .edit-tools {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: var(--light-color);
+            border-radius: 10px;
+        }
+        
+        .tool-btn {
+            padding: 8px 15px;
+            border-radius: 8px;
+            background: white;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 500;
+        }
+        
+        .tool-btn:hover {
+            background-color: var(--light-color);
+            transform: translateY(-2px);
+        }
+        
+        .tool-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        @media (min-width: 992px) {
+            .sidebar {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+    <div class="sidebar">
+        <div class="sidebar-content">
+            <div class="text-center mb-5">
+                <i class="fas fa-history" style="font-size: 50px;"></i>
+                <h2 class="mt-3">سجل التعديلات</h2>
+                <p>تتبع جميع الصور وعمليات التحرير السابقة</p>
+            </div>
+            
+            <div class="mt-5">
+                <p>استعرض جميع الصور التي قمت بتحريرها:</p>
+                <ul style="padding-right: 20px;">
+                    <li>شاهد تفاصيل كل عملية تحرير</li>
+                    <li>قارن بين الصور الأصلية والمعدلة</li>
+                    <li>قم بتنزيل أي صورة في أي وقت</li>
+                    <li>استخدم النماذج لمشاريعك المستقبلية</li>
+                </ul>
+            </div>
+            
+            <div class="mt-auto text-center">
+                <p>كل تعديلاتك محفوظة في حسابك</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="history-header">
+            <h2><i class="fas fa-history" style="color: var(--primary-color);"></i> سجل التعديلات</h2>
+            <div>
+                <a href="{{ url_for('index') }}" class="btn btn-custom">
+                    <i class="fas fa-home"></i> الصفحة الرئيسية
+                </a>
+                <a href="{{ url_for('logout') }}" class="btn btn-outline-danger ms-2">
+                    <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+                </a>
+            </div>
+        </div>
+        
+        {% if history %}
+            {% for item in history %}
+                <div class="history-item">
+                    <div class="history-header">
+                        <div>
+                            <h5><i class="fas fa-magic" style="color: var(--primary-color);"></i> التعديلات المطبقة</h5>
+                        </div>
+                        <div class="date-info">
+                            <i class="far fa-calendar-alt"></i>
+                            {{ item.created_at.strftime('%Y/%m/%d - %H:%M') }}
+                        </div>
+                    </div>
+                    
+                    <div class="filters-applied mb-4">
+                        {% for filter in item.filters_applied.split(', ') %}
+                            <span class="filter-badge">{{ filter }}</span>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="image-container">
+                        <div class="image-box original">
+                            <h6><i class="fas fa-image"></i> الصورة الأصلية</h6>
+                            <img src="{{ url_for('static', filename='uploads/' + item.original_filename) }}" 
+                                 alt="الصورة الأصلية"
+                                 onclick="openImageModal(this.src, 'الصورة الأصلية')">
+                        </div>
+                        <div class="image-box edited">
+                            <h6><i class="fas fa-magic"></i> الصورة المعدلة</h6>
+                            <img src="{{ url_for('static', filename='uploads/' + item.edited_filename) }}" 
+                                 alt="الصورة المعدلة"
+                                 onclick="openImageModal(this.src, 'الصورة المعدلة')">
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <a href="{{ url_for('static', filename='uploads/' + item.edited_filename) }}" 
+                           class="btn btn-custom" download>
+                            <i class="fas fa-download"></i> تحميل الصورة المعدلة
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+            
+        {% else %}
+            <div class="empty-history">
+                <i class="far fa-images"></i>
+                <h3 style="color: var(--text-color); font-weight: 600;">لا يوجد سجل للتعديلات المطبقة بعد</h3>
+                <p class="text-secondary">قم بتطبيق تعديلات على صورك وستظهر هنا</p>
+                <a href="{{ url_for('index') }}" class="btn btn-custom mt-3">
+                    <i class="fas fa-plus"></i> إضافة صورة جديدة
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal pour l'aperçu d'image -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageModalTitle"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="edit-tools">
+                    <button type="button" class="tool-btn" id="modal-zoom-in-btn">
+                        <i class="fas fa-search-plus"></i> تكبير
+                    </button>
+                    <button type="button" class="tool-btn" id="modal-zoom-out-btn">
+                        <i class="fas fa-search-minus"></i> تصغير
+                    </button>
+                    <button type="button" class="tool-btn" id="modal-rotate-left-btn">
+                        <i class="fas fa-undo"></i> تدوير لليسار
+                    </button>
+                    <button type="button" class="tool-btn" id="modal-rotate-right-btn">
+                        <i class="fas fa-redo"></i> تدوير لليمين
+                    </button>
+                    <button type="button" class="tool-btn" id="modal-flip-h-btn">
+                        <i class="fas fa-arrows-alt-h"></i> قلب أفقي
+                    </button>
+                    <button type="button" class="tool-btn" id="modal-flip-v-btn">
+                        <i class="fas fa-arrows-alt-v"></i> قلب رأسي
+                    </button>
+                    <button type="button" class="tool-btn" id="modal-reset-btn">
+                        <i class="fas fa-sync-alt"></i> إعادة تعيين
+                    </button>
+                </div>
+                <div class="text-center">
+                    <img id="modalImage" src="" class="modal-img">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+                <a id="modalDownloadBtn" href="" class="btn btn-custom" download>
+                    <i class="fas fa-download"></i> تحميل الصورة
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    let modalScale = 1;
+    let modalRotation = 0;
+    let modalFlipH = false;
+    let modalFlipV = false;
+    
+    function openImageModal(src, title) {
+        // Réinitialiser les transformations
+        resetModalTransform();
+        
+        // Configurer la modal
+        document.getElementById('modalImage').src = src;
+        document.getElementById('imageModalTitle').textContent = title;
+        document.getElementById('modalDownloadBtn').href = src;
+        
+        // Afficher la modal
+        var imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
+        imageModal.show();
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Configuration des boutons d'édition
+        document.getElementById('modal-zoom-in-btn').addEventListener('click', function() {
+            modalScale += 0.1;
+            updateModalTransform();
+        });
+        
+        document.getElementById('modal-zoom-out-btn').addEventListener('click', function() {
+            if (modalScale > 0.5) {
+                modalScale -= 0.1;
+                updateModalTransform();
+            }
+        });
+        
+        document.getElementById('modal-rotate-left-btn').addEventListener('click', function() {
+            modalRotation -= 90;
+            updateModalTransform();
+        });
+        
+        document.getElementById('modal-rotate-right-btn').addEventListener('click', function() {
+            modalRotation += 90;
+            updateModalTransform();
+        });
+        
+        document.getElementById('modal-flip-h-btn').addEventListener('click', function() {
+            modalFlipH = !modalFlipH;
+            updateModalTransform();
+        });
+        
+        document.getElementById('modal-flip-v-btn').addEventListener('click', function() {
+            modalFlipV = !modalFlipV;
+            updateModalTransform();
+        });
+        
+        document.getElementById('modal-reset-btn').addEventListener('click', function() {
+            resetModalTransform();
+        });
+    });
+    
+    function resetModalTransform() {
+        modalScale = 1;
+        modalRotation = 0;
+        modalFlipH = false;
+        modalFlipV = false;
+        updateModalTransform();
+    }
+    
+    function updateModalTransform() {
+        const modalImage = document.getElementById('modalImage');
+        modalImage.style.transform = `scale(${modalScale}) rotate(${modalRotation}deg) scaleX(${modalFlipH ? -1 : 1}) scaleY(${modalFlipV ? -1 : 1})`;
+    }
+</script>
+
+</body>
+</html>

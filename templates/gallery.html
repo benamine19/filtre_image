@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>معرض الصور</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #818cf8;
+            --accent-color: #4f46e5;
+            --text-color: #1f2937;
+            --light-color: #f3f4f6;
+            --border-color: #e5e7eb;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            font-family: 'Cairo', sans-serif;
+        }
+        
+        .main-container {
+            display: flex;
+            max-width: 1200px;
+            margin: 0 auto;
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            background: white;
+        }
+        
+        .sidebar {
+            flex: 1;
+            background-image: url('https://images.unsplash.com/photo-1542038784456-1ea8e935640e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            min-height: 100%;
+            display: none;
+        }
+        
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.8) 0%, rgba(79, 70, 229, 0.8) 100%);
+        }
+        
+        .sidebar-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 40px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .main-content {
+            flex: 2;
+            padding: 40px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .gallery-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .gallery-header h2 {
+            color: var(--text-color);
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .gallery-item {
+            background-color: var(--light-color);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .gallery-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.15);
+        }
+        
+        .gallery-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+        
+        .gallery-info {
+            padding: 15px;
+            background-color: white;
+        }
+        
+        .gallery-info p {
+            margin-bottom: 8px;
+            color: var(--text-color);
+        }
+        
+        .gallery-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        
+        .filter-badge {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            display: inline-block;
+        }
+        
+        .btn-custom {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+        }
+        
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+            color: white;
+        }
+        
+        .empty-gallery {
+            text-align: center;
+            padding: 100px 0;
+        }
+        
+        .empty-gallery i {
+            font-size: 80px;
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+        }
+        
+        @media (min-width: 992px) {
+            .sidebar {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="sidebar">
+            <div class="sidebar-content">
+                <div class="text-center mb-5">
+                    <i class="fas fa-photo-film" style="font-size: 50px;"></i>
+                    <h2 class="mt-3">معرض الصور</h2>
+                    <p>استعرض مجموعة إبداعاتك الرائعة</p>
+                </div>
+                
+                <div class="mt-5">
+                    <p>في معرض الصور الخاص بك يمكنك:</p>
+                    <ul style="padding-right: 20px;">
+                        <li>استعراض جميع أعمالك المحفوظة</li>
+                        <li>تنزيل أي صورة بجودة عالية</li>
+                        <li>مشاركة أعمالك مع الآخرين</li>
+                        <li>تنظيم أعمالك حسب التصنيف</li>
+                    </ul>
+                </div>
+                
+                <div class="mt-auto text-center">
+                    <p>تفتخر بأعمالك وشاركها مع العالم</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="gallery-header">
+                <h2><i class="fas fa-images" style="color: var(--primary-color);"></i> معرض الصور</h2>
+                <div>
+                    <a href="{{ url_for('index') }}" class="btn btn-custom">
+                        <i class="fas fa-home"></i> الصفحة الرئيسية
+                    </a>
+                    <a href="{{ url_for('history') }}" class="btn btn-outline-primary ms-2">
+                        <i class="fas fa-history"></i> سجل التعديلات
+                    </a>
+                </div>
+            </div>
+            
+            {% if images %}
+                <div class="gallery-grid">
+                    {% for img in images %}
+                        <div class="gallery-item">
+                            <img src="{{ url_for('static', filename='uploads/' + img.edited_filename) }}" 
+                                 alt="صورة معدلة"
+                                 class="gallery-image"
+                                 onclick="openImagePreview('{{ url_for('static', filename='uploads/' + img.edited_filename) }}')">
+                            <div class="gallery-info">
+                                <p><strong><i class="fas fa-file"></i> الملف الأصلي:</strong> {{ img.original_filename }}</p>
+                                <p><strong><i class="fas fa-magic"></i> الفلاتر:</strong></p>
+                                <div class="gallery-filters">
+                                    {% for filter in img.filters.split(', ') %}
+                                        <span class="filter-badge">{{ filter }}</span>
+                                    {% endfor %}
+                                </div>
+                                <div class="text-center mt-3">
+                                    <a href="{{ url_for('static', filename='uploads/' + img.edited_filename) }}" class="btn btn-sm btn-custom" download>
+                                        <i class="fas fa-download"></i> تحميل
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-gallery">
+                    <i class="far fa-images"></i>
+                    <h3 style="color: var(--text-color); font-weight: 600;">لا توجد صور في المعرض</h3>
+                    <p class="text-secondary">قم بتطبيق الفلاتر على الصور وستظهر هنا</p>
+                    <a href="{{ url_for('index') }}" class="btn btn-custom mt-3">
+                        <i class="fas fa-plus"></i> إضافة صورة جديدة
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Modal pour prévisualiser une image -->
+    <div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">معاينة الصورة</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="previewModalImage" src="" class="img-fluid" style="max-height: 70vh; border-radius: 8px;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+                    <a id="previewDownloadBtn" href="" class="btn btn-custom" download>
+                        <i class="fas fa-download"></i> تحميل الصورة
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function openImagePreview(imgSrc) {
+            // Configuration de la modal
+            document.getElementById('previewModalImage').src = imgSrc;
+            document.getElementById('previewDownloadBtn').href = imgSrc;
+            
+            // Affichage de la modal
+            var modal = new bootstrap.Modal(document.getElementById('imagePreviewModal'));
+            modal.show();
+        }
+    </script>
+</body>
+</html>

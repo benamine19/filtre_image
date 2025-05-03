@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نتيجة الفلاتر</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #818cf8;
+            --accent-color: #4f46e5;
+            --text-color: #1f2937;
+            --light-color: #f3f4f6;
+            --border-color: #e5e7eb;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            font-family: 'Cairo', sans-serif;
+        }
+        
+        .main-container {
+            display: flex;
+            max-width: 1200px;
+            margin: 0 auto;
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            background: white;
+        }
+        
+        .sidebar {
+            flex: 1;
+            background-image: url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            min-height: 100%;
+            display: none;
+        }
+        
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.8) 0%, rgba(79, 70, 229, 0.8) 100%);
+        }
+        
+        .sidebar-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 40px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .main-content {
+            flex: 2;
+            padding: 40px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .result-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .result-header h2 {
+            color: var(--text-color);
+            font-weight: 700;
+        }
+        
+        .image-card {
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+            height: 100%;
+            border: 1px solid var(--border-color);
+        }
+        
+        .image-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.15);
+        }
+        
+        .image-header {
+            padding: 15px;
+            background: var(--light-color);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .image-header h5 {
+            color: var(--text-color);
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .image-header .btn {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+            transition: all 0.3s;
+        }
+        
+        .image-header .btn:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .image-body {
+            padding: 0;
+            position: relative;
+            height: 300px;
+            overflow: hidden;
+        }
+        
+        .image-body img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: transform 0.5s;
+        }
+        
+        .image-footer {
+            padding: 15px;
+            background: #f8f9fa;
+            border-top: 1px solid #eee;
+        }
+        
+        .operations-list {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .operation-badge {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            box-shadow: 0 2px 5px rgba(99, 102, 241, 0.2);
+        }
+        
+        .download-btn {
+            display: block;
+            text-align: center;
+            padding: 10px 0;
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            color: white;
+            border-radius: 10px;
+            margin-top: 10px;
+            transition: all 0.3s;
+            font-weight: 500;
+            text-decoration: none;
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+            color: white;
+        }
+        
+        .progress-section {
+            margin-bottom: 30px;
+        }
+        
+        #progressContainer {
+            width: 100%;
+            height: 10px;
+            background-color: var(--light-color);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        
+        #progressBar {
+            width: 1%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            border-radius: 10px;
+            transition: width 0.4s ease;
+        }
+        
+        .btn-group {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .btn-custom {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+            color: white;
+        }
+        
+        .btn-custom.btn-secondary {
+            background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+        }
+        
+        .btn-custom.btn-secondary:hover {
+            box-shadow: 0 10px 20px rgba(107, 114, 128, 0.3);
+        }
+        
+        /* Styles pour l'édition d'image */
+        .edit-tools {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 5px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .tool-btn {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        
+        .tool-btn.active {
+            background: #4A90E2;
+            color: white;
+        }
+        
+        .modal-body .img-container {
+            height: 400px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        @media (min-width: 992px) {
+            .sidebar {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+    <div class="sidebar">
+        <div class="sidebar-content">
+            <div class="text-center mb-5">
+                <i class="fas fa-image" style="font-size: 50px;"></i>
+                <h2 class="mt-3">نتائج التعديل</h2>
+                <p>شاهد التغييرات التي طبقتها على صورتك</p>
+            </div>
+            
+            <div class="mt-5">
+                <p>يمكنك الآن:</p>
+                <ul style="padding-right: 20px;">
+                    <li>تحميل الصور الأصلية والمعدلة</li>
+                    <li>مواصلة تحرير الصور</li>
+                    <li>العودة إلى الصفحة الرئيسية لتعديل صورة جديدة</li>
+                    <li>عرض سجل التعديلات السابقة</li>
+                </ul>
+            </div>
+            
+            <div class="mt-auto text-center">
+                <p>شكرًا لاستخدامك محرر الصور المتقدم</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="result-header">
+            <h2>نتيجة التعديل</h2>
+            <p class="text-muted">تمت معالجة الصورة بنجاح!</p>
+        </div>
+        
+        <div class="progress-section">
+            <div id="progressContainer">
+                <div id="progressBar"></div>
+            </div>
+            <div id="progressText">جاري معالجة الصورة...</div>
+        </div>
+        
+        <div id="result-content" style="display: none;">
+            {% if operations %}
+                <div class="mb-4">
+                    <h5>العمليات المطبقة:</h5>
+                    <div class="operations-list">
+                        {% for operation in operations.split(', ') %}
+                            <span class="operation-badge">{{ operation }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+            
+            <div class="row mt-4">
+                <div class="col-md-6 mb-4">
+                    <div class="image-card">
+                        <div class="image-header">
+                            <h5><i class="fas fa-image"></i> الصورة الأصلية</h5>
+                            <button class="btn btn-sm btn-outline-primary" onclick="openEditor('original')">
+                                <i class="fas fa-edit"></i> تحرير
+                            </button>
+                        </div>
+                        <div class="image-body">
+                            <img id="original-image" src="{{ url_for('static', filename='uploads/' + original) }}" alt="الصورة الأصلية" class="img-fluid">
+                        </div>
+                        <div class="image-footer">
+                            <a href="{{ url_for('static', filename='uploads/' + original) }}" download class="download-btn">
+                                <i class="fas fa-download"></i> تحميل الصورة الأصلية
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="image-card">
+                        <div class="image-header">
+                            <h5><i class="fas fa-magic"></i> الصورة المعدلة</h5>
+                            <button class="btn btn-sm btn-outline-primary" onclick="openEditor('edited')">
+                                <i class="fas fa-edit"></i> تحرير
+                            </button>
+                        </div>
+                        <div class="image-body">
+                            <img id="edited-image" src="{{ url_for('static', filename='uploads/' + edited) }}" alt="الصورة المعدلة" class="img-fluid">
+                        </div>
+                        <div class="image-footer">
+                            <a href="{{ url_for('static', filename='uploads/' + edited) }}" download class="download-btn">
+                                <i class="fas fa-download"></i> تحميل الصورة المعدلة
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="btn-group">
+            <a href="{{ url_for('index') }}" class="btn btn-custom">
+                <i class="fas fa-arrow-left"></i> تعديل صورة جديدة
+            </a>
+            <a href="{{ url_for('history') }}" class="btn btn-custom btn-secondary">
+                <i class="fas fa-history"></i> عرض سجل التعديلات
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour l'édition d'image -->
+<div class="modal fade" id="imageEditorModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: var(--light-color);">
+                <h5 class="modal-title" style="color: var(--text-color); font-weight: 600;">تحرير الصورة</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="edit-tools">
+                    <button type="button" class="tool-btn" id="zoom-in-btn">
+                        <i class="fas fa-search-plus"></i> تكبير
+                    </button>
+                    <button type="button" class="tool-btn" id="zoom-out-btn">
+                        <i class="fas fa-search-minus"></i> تصغير
+                    </button>
+                    <button type="button" class="tool-btn" id="rotate-left-btn">
+                        <i class="fas fa-undo"></i> تدوير لليسار
+                    </button>
+                    <button type="button" class="tool-btn" id="rotate-right-btn">
+                        <i class="fas fa-redo"></i> تدوير لليمين
+                    </button>
+                    <button type="button" class="tool-btn" id="flip-h-btn">
+                        <i class="fas fa-arrows-alt-h"></i> قلب أفقي
+                    </button>
+                    <button type="button" class="tool-btn" id="flip-v-btn">
+                        <i class="fas fa-arrows-alt-v"></i> قلب رأسي
+                    </button>
+                    <button type="button" class="tool-btn" id="reset-btn">
+                        <i class="fas fa-sync-alt"></i> إعادة تعيين
+                    </button>
+                </div>
+                <div class="img-container">
+                    <img id="editor-image" src="" alt="تحرير الصورة" class="img-fluid">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+                <a id="download-edited-btn" href="#" download class="btn" style="background-color: var(--primary-color); color: white;">
+                    <i class="fas fa-download"></i> تحميل الصورة المعدلة
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var progressBar = document.getElementById("progressBar");
+        var progressText = document.getElementById("progressText");
+        var resultContent = document.getElementById("result-content");
+
+        var width = 1;
+        var interval = setInterval(function() {
+            if (width >= 100) {
+                clearInterval(interval);
+                progressText.textContent = "تمت معالجة الصورة بنجاح!";
+                resultContent.style.display = "block";
+                progressText.style.marginBottom = "30px";
+                document.querySelector(".progress-section").style.marginBottom = "20px";
+            } else {
+                width++;
+                progressBar.style.width = width + "%";
+            }
+        }, 30);
+        
+        // Configuration de l'éditeur d'image
+        setupImageEditor();
+    });
+    
+    let currentScale = 1;
+    let currentRotation = 0;
+    let flipHorizontal = false;
+    let flipVertical = false;
+    let currentImage = null;
+    let originalTransform = '';
+    
+    function openEditor(type) {
+        // Réinitialiser les transformations
+        resetEditorTransform();
+        
+        const editorImage = document.getElementById('editor-image');
+        const imgSrc = type === 'original' 
+            ? document.getElementById('original-image').src 
+            : document.getElementById('edited-image').src;
+            
+        editorImage.src = imgSrc;
+        currentImage = type;
+        
+        // Mettre à jour le lien de téléchargement
+        document.getElementById('download-edited-btn').href = imgSrc;
+        
+        // Ouvrir la modal
+        const modal = new bootstrap.Modal(document.getElementById('imageEditorModal'));
+        modal.show();
+    }
+    
+    function setupImageEditor() {
+        const editorImage = document.getElementById('editor-image');
+        
+        document.getElementById('zoom-in-btn').addEventListener('click', function() {
+            currentScale += 0.1;
+            updateImageTransform();
+        });
+        
+        document.getElementById('zoom-out-btn').addEventListener('click', function() {
+            if (currentScale > 0.5) {
+                currentScale -= 0.1;
+                updateImageTransform();
+            }
+        });
+        
+        document.getElementById('rotate-left-btn').addEventListener('click', function() {
+            currentRotation -= 90;
+            updateImageTransform();
+        });
+        
+        document.getElementById('rotate-right-btn').addEventListener('click', function() {
+            currentRotation += 90;
+            updateImageTransform();
+        });
+        
+        document.getElementById('flip-h-btn').addEventListener('click', function() {
+            flipHorizontal = !flipHorizontal;
+            updateImageTransform();
+        });
+        
+        document.getElementById('flip-v-btn').addEventListener('click', function() {
+            flipVertical = !flipVertical;
+            updateImageTransform();
+        });
+        
+        document.getElementById('reset-btn').addEventListener('click', function() {
+            resetEditorTransform();
+        });
+    }
+    
+    function resetEditorTransform() {
+        currentScale = 1;
+        currentRotation = 0;
+        flipHorizontal = false;
+        flipVertical = false;
+        updateImageTransform();
+    }
+    
+    function updateImageTransform() {
+        const editorImage = document.getElementById('editor-image');
+        editorImage.style.transform = `scale(${currentScale}) rotate(${currentRotation}deg) scaleX(${flipHorizontal ? -1 : 1}) scaleY(${flipVertical ? -1 : 1})`;
+    }
+</script>
+
+</body>
+</html>
