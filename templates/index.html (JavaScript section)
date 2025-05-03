@@ -1,0 +1,43 @@
+function updatePreviewFilter() {
+    const preview = document.getElementById('preview');
+    let filterStyle = '';
+    
+    if (document.getElementById('sepia').checked) {
+        filterStyle += 'sepia(100%) ';
+    }
+    
+    if (document.getElementById('gray').checked) {
+        filterStyle += 'grayscale(100%) ';
+    }
+    
+    if (document.getElementById('blur').checked) {
+        // Adapter l'intensité du flou en fonction de la sélection
+        const blurIntensity = document.getElementById('blur-intensity').value;
+        let blurValue = 2; // valeur par défaut
+        
+        if (blurIntensity == 1) {
+            blurValue = 1;
+        } else if (blurIntensity == 2) {
+            blurValue = 3;
+        } else if (blurIntensity == 3) {
+            blurValue = 5;
+        }
+        
+        filterStyle += `blur(${blurValue}px) `;
+    }
+    
+    // ...existing code...
+    
+    preview.style.filter = filterStyle;
+}
+
+// Ajouter un événement de changement pour l'intensité du flou
+document.addEventListener('DOMContentLoaded', function() {
+    // ...existing code...
+    
+    document.getElementById('blur-intensity').addEventListener('change', function() {
+        updatePreviewFilter();
+    });
+    
+    // ...existing code...
+});

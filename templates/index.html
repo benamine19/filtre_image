@@ -301,6 +301,20 @@
                 display: block;
             }
         }
+        
+        .filter-preview[data-filter="emboss"] img {
+            filter: contrast(2) grayscale(50%);
+        }
+        
+        .filter-preview[data-filter="pixel"] img {
+            image-rendering: pixelated;
+            transform: scale(0.5);
+            transform-origin: center;
+        }
+        
+        .pixelated-preview {
+            image-rendering: pixelated !important;
+        }
     </style>
 </head>
 <body>
@@ -440,6 +454,127 @@
                         <img src="#" alt="حراري">
                         <span>حراري</span>
                     </div>
+                    <div class="filter-preview" data-filter="emboss">
+                        <img src="#" alt="بارز">
+                        <span>بروز</span>
+                    </div>
+                    <div class="filter-preview" data-filter="pixel">
+                        <img src="#" alt="بكسلة">
+                        <span>بكسلة</span>
+                    </div>
+                </div>
+
+                <div class="filter-options">
+                    <label class="fw-bold">اختر الفلاتر:</label><br>
+                    <div class="filter-grid">
+                        <div class="filter-item">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="filter" value="sepia" id="sepia">
+                                <label class="form-check-label" for="sepia">
+                                    <strong>فلتر سيبيا</strong>
+                                    <p class="small text-muted mb-0">تأثير اللون البني القديم</p>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="filter-item">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="filter" value="blur" id="blur" onchange="toggleBlurOptions()">
+                                <label class="form-check-label" for="blur">
+                                    <strong>فلتر التمويه</strong>
+                                    <p class="small text-muted mb-0">تنعيم الصورة وإزالة التفاصيل</p>
+                                </label>
+                            </div>
+                            <div id="blur-options" class="mt-2" style="display: none;">
+                                <label for="blur-intensity" class="form-label small">شدة التمويه:</label>
+                                <select class="form-select form-select-sm" id="blur-intensity" name="blur_intensity">
+                                    <option value="1">خفيف</option>
+                                    <option value="2" selected>متوسط</option>
+                                    <option value="3">قوي</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="filter-item">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="filter" value="gray" id="gray">
+                                <label class="form-check-label" for="gray">
+                                    <strong>فلتر أبيض وأسود</strong>
+                                    <p class="small text-muted mb-0">تحويل إلى درجات الرمادي</p>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="filter-item">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="filter" value="sharpen" id="sharpen">
+                                <label class="form-check-label" for="sharpen">
+                                    <strong>فلتر حدة الصورة</strong>
+                                    <p class="small text-muted mb-0">زيادة وضوح وتفاصيل الصورة</p>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="filter-item">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="filter" value="edge" id="edge">
+                                <label class="form-check-label" for="edge">
+                                    <strong>فلتر الحواف</strong>
+                                    <p class="small text-muted mb-0">إظهار حواف العناصر في الصورة</p>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="filter-item">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="filter" value="pencil" id="pencil">
+                                <label class="form-check-label" for="pencil">
+                                    <strong>فلتر الرسم بالقلم</strong>
+                                    <p class="small text-muted mb-0">تحويل الصورة إلى رسم تخطيطي</p>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="filter-item">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="filter" value="invert" id="invert">
+                                <label class="form-check-label" for="invert">
+                                    <strong>فلتر الألوان العكسية</strong>
+                                    <p class="small text-muted mb-0">عكس ألوان الصورة</p>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="filter-item">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="filter" value="thermal" id="thermal">
+                                <label class="form-check-label" for="thermal">
+                                    <strong>فلتر التصوير الحراري</strong>
+                                    <p class="small text-muted mb-0">تأثير الكاميرا الحرارية</p>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="filter-item">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="filter" value="emboss" id="emboss">
+                                <label class="form-check-label" for="emboss">
+                                    <strong>فلتر البروز</strong>
+                                    <p class="small text-muted mb-0">تأثير ثلاثي الأبعاد بارز</p>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="filter-item">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="filter" value="pixel" id="pixel">
+                                <label class="form-check-label" for="pixel">
+                                    <strong>فلتر البكسلة</strong>
+                                    <p class="small text-muted mb-0">تأثير الصور منخفضة الدقة</p>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <input type="hidden" id="rotation-value" name="rotation" value="0">
@@ -448,143 +583,36 @@
                 <input type="hidden" id="brightness-value" name="brightness" value="0">
                 <input type="hidden" id="contrast-value" name="contrast" value="0">
                 <input type="hidden" id="saturation-value" name="saturation" value="0">
-            </div>
-
-            <div class="mt-4 filter-options">
-                <label class="fw-bold">اختر الفلاتر:</label><br>
-                <div class="filter-grid">
-                    <div class="filter-item">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="filter" value="sepia" id="sepia">
-                            <label class="form-check-label" for="sepia">
-                                <strong>فلتر سيبيا</strong>
-                                <p class="small text-muted mb-0">تأثير اللون البني القديم</p>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="filter-item">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="filter" value="blur" id="blur">
-                            <label class="form-check-label" for="blur">
-                                <strong>فلتر التمويه</strong>
-                                <p class="small text-muted mb-0">تنعيم الصورة وإزالة التفاصيل</p>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="filter-item">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="filter" value="gray" id="gray">
-                            <label class="form-check-label" for="gray">
-                                <strong>فلتر أبيض وأسود</strong>
-                                <p class="small text-muted mb-0">تحويل إلى درجات الرمادي</p>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="filter-item">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="filter" value="sharpen" id="sharpen">
-                            <label class="form-check-label" for="sharpen">
-                                <strong>فلتر حدة الصورة</strong>
-                                <p class="small text-muted mb-0">زيادة وضوح وتفاصيل الصورة</p>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="filter-item">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="filter" value="edge" id="edge">
-                            <label class="form-check-label" for="edge">
-                                <strong>فلتر الحواف</strong>
-                                <p class="small text-muted mb-0">إظهار حواف العناصر في الصورة</p>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="filter-item">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="filter" value="pencil" id="pencil">
-                            <label class="form-check-label" for="pencil">
-                                <strong>فلتر الرسم بالقلم</strong>
-                                <p class="small text-muted mb-0">تحويل الصورة إلى رسم تخطيطي</p>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="filter-item">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="filter" value="invert" id="invert">
-                            <label class="form-check-label" for="invert">
-                                <strong>فلتر الألوان العكسية</strong>
-                                <p class="small text-muted mb-0">عكس ألوان الصورة</p>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="filter-item">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="filter" value="thermal" id="thermal">
-                            <label class="form-check-label" for="thermal">
-                                <strong>فلتر التصوير الحراري</strong>
-                                <p class="small text-muted mb-0">تأثير الكاميرا الحرارية</p>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="filter-item">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="filter" value="emboss" id="emboss">
-                            <label class="form-check-label" for="emboss">
-                                <strong>فلتر البروز</strong>
-                                <p class="small text-muted mb-0">تأثير ثلاثي الأبعاد بارز</p>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="filter-item">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="filter" value="pixel" id="pixel">
-                            <label class="form-check-label" for="pixel">
-                                <strong>فلتر البكسلة</strong>
-                                <p class="small text-muted mb-0">تأثير الصور منخفضة الدقة</p>
-                            </label>
-                        </div>
-                    </div>
+                
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-custom">
+                        <i class="fas fa-magic"></i> تطبيق الفلاتر وحفظ الصورة
+                    </button>
                 </div>
-            </div>
-
-            <div class="text-center mt-4">
-                <button type="submit" class="btn btn-custom">
-                    <i class="fas fa-magic"></i> تطبيق الفلاتر وحفظ الصورة
-                </button>
             </div>
         </form>
     </div>
 </div>
 
 <script>
+let originalImage = null;
 let currentRotation = 0;
 let currentScale = 1;
 let flipHorizontal = false;
 let flipVertical = false;
-let originalImage = null;
 
 function handleImageUpload(event) {
     const file = event.target.files[0];
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
+            const preview = document.getElementById('preview');
             // عرض محرر الصور
             document.getElementById('editor-section').style.display = 'block';
-            
-            // تعيين الصورة في العنصر
-            const preview = document.getElementById('preview');
             preview.src = e.target.result;
             preview.style.display = 'block';
             
-            // حفظ الصورة الأصلية
+            // تعيين الصورة في العنصر
             originalImage = e.target.result;
             
             // تعيين الصورة في جميع معاينات الفلاتر
@@ -611,7 +639,7 @@ function applyFilterPreviews() {
     grayPreview.style.filter = 'grayscale(100%)';
     
     const blurPreview = document.querySelector('.filter-preview[data-filter="blur"] img');
-    blurPreview.style.filter = 'blur(2px)';
+    blurPreview.style.filter = 'blur(5px)';
     
     const sharpenPreview = document.querySelector('.filter-preview[data-filter="sharpen"] img');
     sharpenPreview.style.filter = 'contrast(1.5) brightness(1.2)';
@@ -624,6 +652,20 @@ function applyFilterPreviews() {
     
     const thermalPreview = document.querySelector('.filter-preview[data-filter="thermal"] img');
     thermalPreview.style.filter = 'hue-rotate(180deg) saturate(3)';
+    
+    // Ajout des prévisualisations pour les filtres manquants
+    const embossPreview = document.querySelector('.filter-preview[data-filter="emboss"] img');
+    if (embossPreview) {
+        embossPreview.style.filter = 'contrast(2) grayscale(0.5)';
+        embossPreview.style.boxShadow = '3px 3px 5px rgba(0,0,0,0.5) inset, -3px -3px 5px rgba(255,255,255,0.5) inset';
+    }
+    
+    const pixelPreview = document.querySelector('.filter-preview[data-filter="pixel"] img');
+    if (pixelPreview) {
+        pixelPreview.style.imageRendering = 'pixelated';
+        pixelPreview.style.transform = 'scale(0.5)';
+        pixelPreview.style.transformOrigin = 'center';
+    }
 }
 
 function resetEditor() {
@@ -645,7 +687,7 @@ function resetEditor() {
 function updatePreviewTransform() {
     const preview = document.getElementById('preview');
     preview.style.transform = `
-        scale(${currentScale}) 
+        scale(${currentScale})
         rotate(${currentRotation}deg)
         scaleX(${flipHorizontal ? -1 : 1})
         scaleY(${flipVertical ? -1 : 1})
@@ -708,6 +750,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('sepia').checked = false;
                 document.getElementById('blur').checked = false;
                 document.getElementById('gray').checked = false;
+                document.getElementById('sharpen').checked = false;
+                document.getElementById('edge').checked = false;
+                document.getElementById('invert').checked = false;
+                document.getElementById('thermal').checked = false;
+                document.getElementById('emboss').checked = false;
+                document.getElementById('pixel').checked = false;
             } else {
                 document.getElementById(filterType).checked = true;
             }
@@ -739,8 +787,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.querySelectorAll('.filter-preview').forEach(p => p.classList.remove('active'));
                     filterPreview.classList.add('active');
                 }
-                document.querySelectorAll('.filter-item').forEach(item => item.classList.remove('active'));
                 if (filterItem) {
+                    document.querySelectorAll('.filter-item').forEach(item => item.classList.remove('active'));
                     filterItem.classList.add('active');
                 }
             } else {
@@ -760,6 +808,35 @@ document.addEventListener('DOMContentLoaded', function() {
             updatePreviewFilter();
         });
     });
+    
+    // Initialisation des options de flou
+    toggleBlurOptions();
+    
+    // Mettre à jour la prévisualisation lorsque l'intensité du flou change
+    document.getElementById('blur-intensity').addEventListener('change', function() {
+        updatePreviewFilter();
+        
+        // Mettre à jour la prévisualisation des filtres
+        const blurPreview = document.querySelector('.filter-preview[data-filter="blur"] img');
+        const blurIntensity = this.value;
+        
+        if (blurIntensity == 1) {
+            blurPreview.style.filter = 'blur(2px)';
+        } else if (blurIntensity == 2) {
+            blurPreview.style.filter = 'blur(5px)';
+        } else {
+            blurPreview.style.filter = 'blur(10px)';
+        }
+    });
+    
+    // Ajouter des styles CSS pour la pixelisation
+    const style = document.createElement('style');
+    style.textContent = `
+        .pixelated {
+            image-rendering: pixelated !important;
+        }
+    `;
+    document.head.appendChild(style);
 });
 
 // وظيفة لتحديث فلتر المعاينة على الصورة الرئيسية
@@ -776,7 +853,19 @@ function updatePreviewFilter() {
     }
     
     if (document.getElementById('blur').checked) {
-        filterStyle += 'blur(2px) ';
+        // Ajuster l'intensité du flou en fonction de la sélection
+        const blurIntensity = document.getElementById('blur-intensity').value;
+        let blurValue = 4; // valeur moyenne par défaut
+        
+        if (blurIntensity == 1) {
+            blurValue = 2; // léger
+        } else if (blurIntensity == 2) {
+            blurValue = 5; // moyen
+        } else if (blurIntensity == 3) {
+            blurValue = 10; // fort
+        }
+        
+        filterStyle += `blur(${blurValue}px) `;
     }
     
     if (document.getElementById('sharpen').checked) {
@@ -791,7 +880,33 @@ function updatePreviewFilter() {
         filterStyle += 'hue-rotate(180deg) saturate(3) ';
     }
     
+    if (document.getElementById('emboss').checked) {
+        filterStyle += 'contrast(2) grayscale(0.5) ';
+        preview.style.boxShadow = '3px 3px 5px rgba(0,0,0,0.5) inset, -3px -3px 5px rgba(255,255,255,0.5) inset';
+    } else {
+        preview.style.boxShadow = 'none';
+    }
+    
+    if (document.getElementById('pixel').checked) {
+        preview.classList.add('pixelated');
+        preview.style.imageRendering = 'pixelated';
+    } else {
+        preview.classList.remove('pixelated');
+        preview.style.imageRendering = 'auto';
+    }
+    
     preview.style.filter = filterStyle;
+}
+
+function toggleBlurOptions() {
+    const blurCheckbox = document.getElementById('blur');
+    const blurOptions = document.getElementById('blur-options');
+    
+    if (blurCheckbox.checked) {
+        blurOptions.style.display = 'block';
+    } else {
+        blurOptions.style.display = 'none';
+    }
 }
 </script>
 

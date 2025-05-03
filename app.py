@@ -127,6 +127,15 @@ def upload():
 
         image = cv2.imread(filepath)
         
+        # Vérifier si l'image est correctement chargée
+        if image is None:
+            flash('Erreur lors du chargement de l\'image. Veuillez réessayer avec une autre image.', 'danger')
+            return redirect(url_for('index'))
+            
+        # Obtenir les dimensions de l'image pour adapter les paramètres de filtres
+        height, width = image.shape[:2]
+        max_dimension = max(height, width)
+        
         # تطبيق التحويلات الأساسية
         rotation = int(request.form.get('rotation', 0))
         flip_h = int(request.form.get('flip_h', 0))
@@ -184,7 +193,21 @@ def upload():
                 image = np.clip(image, 0, 255).astype(np.uint8)
 
             elif filter_type == 'blur':
-                image = cv2.GaussianBlur(image, (15, 15), 0)
+                # Amélioration du filtre flou avec un paramètre adaptatif
+                # Plus l'image est grande, plus le noyau de flou est grand
+                kernel_size = max(3, min(31, int(max_dimension / 50)))
+                # Toujours s'assurer que le kernel_size est impair
+                if kernel_size % 2 == 0:
+                    kernel_size += 1
+                
+                # Appliquer un flou gaussien avec un kernel adaptatif
+                image = cv2.GaussianBlur(image, (kernel_size, kernel_size), 0)
+                
+                # Si l'effet est trop faible, appliquer un second passage
+                blur_intensity = int(request.form.get('blur_intensity', 1))
+                if blur_intensity > 1:
+                    for _ in range(blur_intensity - 1):
+                        image = cv2.GaussianBlur(image, (kernel_size, kernel_size), 0)
 
             elif filter_type == 'gray':
                 image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -308,6 +331,38 @@ def history():
     
     user_history = FilterHistory.query.filter_by(user_id=session['user_id']).order_by(FilterHistory.created_at.desc()).all()
     return render_template('history.html', history=user_history)
+
+@app.route('/delete_image/<int:image_id>', methods=['POST'])
+def delete_image(image_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    # Récupérer l'entrée à supprimer
+    image_entry = FilterHistory.query.filter_by(id=image_id, user_id=session['user_id']).first()
+    
+    if image_entry:
+        # Supprimer les fichiers réels
+        try:
+            original_path = os.path.join(app.config['UPLOAD_FOLDER'], image_entry.original_filename)
+            edited_path = os.path.join(app.config['UPLOAD_FOLDER'], image_entry.edited_filename)
+            
+            # Supprimer les fichiers s'ils existent
+            if os.path.exists(original_path):
+                os.remove(original_path)
+            if os.path.exists(edited_path):
+                os.remove(edited_path)
+                
+            # Supprimer l'entrée de la base de données
+            db.session.delete(image_entry)
+            db.session.commit()
+            
+            flash('تم حذف الصورة بنجاح', 'success')
+        except Exception as e:
+            flash(f'حدث خطأ أثناء حذف الصورة: {str(e)}', 'danger')
+    else:
+        flash('لم يتم العثور على الصورة', 'warning')
+    
+    return redirect(url_for('history'))
 
 @app.route('/uploads/<filename>')
 def send_file(filename):

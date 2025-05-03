@@ -81,6 +81,7 @@
             margin-bottom: 30px;
             padding-bottom: 15px;
             border-bottom: 1px solid var(--border-color);
+            position: relative;
         }
         
         .history-header h2 {
@@ -97,6 +98,7 @@
             transition: transform 0.3s ease;
             box-shadow: 0 3px 10px rgba(0,0,0,0.05);
             border: 1px solid var(--border-color);
+            position: relative;
         }
         
         .history-item:hover {
@@ -104,17 +106,18 @@
             box-shadow: 0 10px 25px rgba(99, 102, 241, 0.15);
         }
         
-        .history-header {
+        .item-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
             border-bottom: 1px dashed var(--border-color);
             padding-bottom: 15px;
+            position: relative;
         }
         
-        .history-header h5 {
-            color: var(--text-color);
+        .item-header h5 {
+            color: var (--text-color);
             font-weight: 600;
             margin: 0;
         }
@@ -167,6 +170,9 @@
         }
         
         .date-info {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
             color: #6b7280;
             font-size: 14px;
             display: flex;
@@ -186,6 +192,7 @@
             transition: all 0.3s;
             border: none;
             font-weight: 600;
+            margin: 0 5px;
         }
         
         .btn-custom:hover {
@@ -194,73 +201,50 @@
             color: white;
         }
         
-        .empty-history {
-            text-align: center;
-            padding: 70px 0;
-            background: var(--light-color);
-            border-radius: 15px;
-        }
-        
-        .empty-history i {
-            font-size: 60px;
-            color: var(--secondary-color);
-            margin-bottom: 20px;
-        }
-        
-        .modal-content {
-            border-radius: 15px;
-            overflow: hidden;
-        }
-        
-        .modal-header {
-            background-color: var(--light-color);
-            border-bottom: 1px solid var(--border-color);
-        }
-        
-        .modal-title {
-            color: var(--text-color);
-            font-weight: 600;
-        }
-        
-        .modal-img {
-            max-width: 100%;
-            max-height: 70vh;
-            transition: all 0.3s ease;
-            border-radius: 8px;
-        }
-        
-        .edit-tools {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-            padding: 15px;
-            background-color: var(--light-color);
-            border-radius: 10px;
-        }
-        
-        .tool-btn {
-            padding: 8px 15px;
-            border-radius: 8px;
-            background: white;
-            border: 1px solid var(--border-color);
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-weight: 500;
-        }
-        
-        .tool-btn:hover {
-            background-color: var(--light-color);
-            transform: translateY(-2px);
-        }
-        
-        .tool-btn.active {
-            background-color: var(--primary-color);
+        .btn-delete {
+            background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
             color: white;
+            border-radius: 6px;
+            font-size: 14px;
+            padding: 6px 12px;
+            transition: all 0.3s;
+        }
+        
+        .btn-delete:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
+            color: white;
+        }
+        
+        .actions-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed var(--border-color);
+        }
+        
+        .delete-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background-color: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s;
+        }
+        
+        .delete-btn:hover {
+            background-color: rgba(239, 68, 68, 0.9);
+            color: white;
+            transform: rotate(15deg);
         }
         
         @media (min-width: 992px) {
@@ -287,7 +271,7 @@
                     <li>شاهد تفاصيل كل عملية تحرير</li>
                     <li>قارن بين الصور الأصلية والمعدلة</li>
                     <li>قم بتنزيل أي صورة في أي وقت</li>
-                    <li>استخدم النماذج لمشاريعك المستقبلية</li>
+                    <li>احذف الصور التي لم تعد بحاجة إليها</li>
                 </ul>
             </div>
             
@@ -313,13 +297,20 @@
         {% if history %}
             {% for item in history %}
                 <div class="history-item">
-                    <div class="history-header">
+                    <button type="button" class="delete-btn" onclick="confirmDelete({{ item.id }}, '{{ item.edited_filename }}')">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                    
+                    <div class="item-header">
                         <div>
                             <h5><i class="fas fa-magic" style="color: var(--primary-color);"></i> التعديلات المطبقة</h5>
                         </div>
                         <div class="date-info">
                             <i class="far fa-calendar-alt"></i>
                             {{ item.created_at.strftime('%Y/%m/%d - %H:%M') }}
+                        </div>
+                        <div style="visibility: hidden">
+                            <h5>التعديلات المطبقة</h5>
                         </div>
                     </div>
                     
@@ -344,11 +335,16 @@
                         </div>
                     </div>
                     
-                    <div class="text-center mt-4">
-                        <a href="{{ url_for('static', filename='uploads/' + item.edited_filename) }}" 
-                           class="btn btn-custom" download>
-                            <i class="fas fa-download"></i> تحميل الصورة المعدلة
-                        </a>
+                    <div class="actions-bar">
+                        <div>
+                            <a href="{{ url_for('static', filename='uploads/' + item.edited_filename) }}" 
+                               class="btn btn-custom" download>
+                                <i class="fas fa-download"></i> تحميل الصورة المعدلة
+                            </a>
+                        </div>
+                        <form id="deleteForm-{{ item.id }}" action="{{ url_for('delete_image', image_id=item.id) }}" method="POST" style="display: none;">
+                            <!-- Le formulaire sera soumis par JavaScript -->
+                        </form>
                     </div>
                 </div>
             {% endfor %}
@@ -363,6 +359,30 @@
                 </a>
             </div>
         {% endif %}
+    </div>
+</div>
+
+<!-- Modal de confirmation de suppression -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">تأكيد الحذف</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+            </div>
+            <div class="modal-body">
+                <p>هل أنت متأكد من حذف هذه الصورة؟</p>
+                <p id="imageToDelete" class="text-danger"></p>
+                <p class="text-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    هذه العملية لا يمكن التراجع عنها.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">حذف</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -483,6 +503,21 @@
     function updateModalTransform() {
         const modalImage = document.getElementById('modalImage');
         modalImage.style.transform = `scale(${modalScale}) rotate(${modalRotation}deg) scaleX(${modalFlipH ? -1 : 1}) scaleY(${modalFlipV ? -1 : 1})`;
+    }
+
+    function confirmDelete(imageId, filename) {
+        // Afficher le nom de fichier dans la modal
+        document.getElementById('imageToDelete').textContent = filename;
+        
+        // Configurer le bouton de confirmation
+        document.getElementById('confirmDeleteBtn').onclick = function() {
+            // Soumettre le formulaire de suppression
+            document.getElementById('deleteForm-' + imageId).submit();
+        };
+        
+        // Afficher la modal
+        var deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+        deleteModal.show();
     }
 </script>
 
