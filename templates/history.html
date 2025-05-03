@@ -453,11 +453,15 @@
                     </button>
                 </div>
                 <div class="text-center" style="background-color: #f8f9fa; border-radius: 10px; padding: 20px; box-shadow: inset 0 0 5px rgba(0,0,0,0.1);">
-                    <img id="modalImage" src="" class="img-fluid" style="max-height: 60vh; border-radius: 8px; transition: all 0.3s ease;">
+                    <img id="modalImage" src="" class="img-fluid" style="max-height: 60vh; border-radius: 8px; transition: all 0.3s ease;" crossorigin="anonymous">
+                    <canvas id="outputCanvas" style="display: none;"></canvas>
                 </div>
             </div>
             <div class="modal-footer" style="border-top: none; padding: 15px 20px;">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 8px; padding: 8px 20px;">إغلاق</button>
+                <button type="button" class="btn" id="saveTransformedBtn" style="background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%); color: white; border-radius: 8px; padding: 8px 20px; transition: all 0.3s ease;">
+                    <i class="fas fa-save"></i> حفظ التغييرات
+                </button>
                 <a id="modalDownloadBtn" href="" class="btn" style="background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%); color: white; border-radius: 8px; padding: 8px 20px; transition: all 0.3s ease;" download>
                     <i class="fas fa-download"></i> تحميل الصورة
                 </a>
@@ -472,10 +476,18 @@
     let modalRotation = 0;
     let modalFlipH = false;
     let modalFlipV = false;
+    let currentImageSrc = '';
+    let currentImageId = '';
     
     function openImageModal(src, title) {
         // Réinitialiser les transformations
         resetModalTransform();
+        
+        // Sauvegarder la source de l'image actuelle
+        currentImageSrc = src;
+        
+        // Extraire l'ID de l'image depuis l'URL
+        currentImageId = src.split('/').pop();
         
         // Configurer la modal avec une animation
         const modalImage = document.getElementById('modalImage');
@@ -543,6 +555,49 @@
                 }, 200);
             });
         });
+
+        // Ajouter un gestionnaire pour le bouton de sauvegarde
+        document.getElementById('saveTransformedBtn').addEventListener('click', function() {
+            // Récupérer l'image modale
+            const modalImage = document.getElementById('modalImage');
+            
+            // Créer un canvas pour appliquer les transformations
+            const canvas = document.getElementById('outputCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Créer une nouvelle image pour charger l'image source
+            const img = new Image();
+            img.crossOrigin = "Anonymous";
+            
+            img.onload = function() {
+                // Définir la taille du canvas pour correspondre à l'image
+                canvas.width = img.width;
+                canvas.height = img.height;
+                
+                // Effacer le canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Déplacer l'origine au centre du canvas
+                ctx.translate(canvas.width / 2, canvas.height / 2);
+                
+                // Appliquer les transformations
+                ctx.scale(modalFlipH ? -1 : 1, modalFlipV ? -1 : 1);
+                ctx.rotate((modalRotation * Math.PI) / 180);
+                ctx.scale(modalScale, modalScale);
+                
+                // Dessiner l'image au centre
+                ctx.drawImage(img, -img.width / 2, -img.height / 2, img.width, img.height);
+                
+                // Convertir le canvas en image data URL
+                const dataURL = canvas.toDataURL('image/jpeg', 0.95);
+                
+                // Envoyer l'image au serveur pour la sauvegarder
+                saveTransformedImage(dataURL);
+            };
+            
+            // Charger l'image
+            img.src = currentImageSrc;
+        });
     });
     
     function resetModalTransform() {
@@ -556,6 +611,47 @@
     function updateModalTransform() {
         const modalImage = document.getElementById('modalImage');
         modalImage.style.transform = `scale(${modalScale}) rotate(${modalRotation}deg) scaleX(${modalFlipH ? -1 : 1}) scaleY(${modalFlipV ? -1 : 1})`;
+    }
+
+    function saveTransformedImage(imageDataURL) {
+        // Afficher un indicateur de chargement
+        document.getElementById('saveTransformedBtn').innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> جاري الحفظ...';
+        document.getElementById('saveTransformedBtn').disabled = true;
+        
+        // Créer la requête FETCH pour envoyer l'image au serveur
+        fetch('/save_transformed_image', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                image_data: imageDataURL,
+                original_filename: currentImageId,
+                transformations: {
+                    scale: modalScale,
+                    rotation: modalRotation,
+                    flip_h: modalFlipH,
+                    flip_v: modalFlipV
+                }
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Actualiser la page pour montrer la nouvelle image
+                window.location.reload();
+            } else {
+                alert('خطأ في حفظ الصورة: ' + data.error);
+                document.getElementById('saveTransformedBtn').innerHTML = '<i class="fas fa-save"></i> حفظ التغييرات';
+                document.getElementById('saveTransformedBtn').disabled = false;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('حدث خطأ أثناء محاولة حفظ الصورة');
+            document.getElementById('saveTransformedBtn').innerHTML = '<i class="fas fa-save"></i> حفظ التغييرات';
+            document.getElementById('saveTransformedBtn').disabled = false;
+        });
     }
 
     function confirmDelete(imageId, filename) {

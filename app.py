@@ -1,10 +1,13 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 import cv2
 import numpy as np
 import os
 import base64
 import time
 import uuid
+import re
+from io import BytesIO
+from PIL import Image
 from werkzeug.utils import secure_filename
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
@@ -383,6 +386,95 @@ def delete_image(image_id):
 @app.route('/uploads/<filename>')
 def send_file(filename):
     return redirect(url_for('static', filename='uploads/' + filename), code=301)
+
+@app.route('/save_transformed_image', methods=['POST'])
+def save_transformed_image():
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'error': 'غير مصرح به، يرجى تسجيل الدخول'}), 401
+        
+    try:
+        data = request.json
+        image_data = data['image_data']
+        original_filename = data['original_filename']
+        transformations = data['transformations']
+        
+        # Extraire les données d'image de la chaîne de données URL
+        image_data = re.sub('^data:image/.+;base64,', '', image_data)
+        image_binary = base64.b64decode(image_data)
+        
+        # Charger l'image avec PIL
+        image = Image.open(BytesIO(image_binary))
+        
+        # Générer un nouveau nom de fichier unique
+        timestamp = str(int(time.time()))
+        unique_id = str(uuid.uuid4().hex[:8])
+        file_extension = os.path.splitext(original_filename)[1] if '.' in original_filename else '.jpg'
+        
+        # Créer le nouveau nom de fichier
+        new_edited_filename = f"transformed_{timestamp}_{unique_id}{file_extension}"
+        save_path = os.path.join(app.config['UPLOAD_FOLDER'], new_edited_filename)
+        
+        # Sauvegarder l'image transformée
+        image.save(save_path, quality=95)
+        
+        # Chercher l'entrée d'historique correspondante
+        history_entry = FilterHistory.query.filter(
+            FilterHistory.user_id == session['user_id'],
+            (FilterHistory.original_filename == original_filename) | (FilterHistory.edited_filename == original_filename)
+        ).first()
+        
+        if not history_entry:
+            return jsonify({'success': False, 'error': 'لم يتم العثور على الصورة الأصلية'}), 404
+            
+        # Créer une description des transformations appliquées
+        transform_description = []
+        if transformations['scale'] != 1:
+            scale_percent = int((transformations['scale'] - 1) * 100)
+            if scale_percent > 0:
+                transform_description.append(f"تكبير: +{scale_percent}%")
+            else:
+                transform_description.append(f"تصغير: {scale_percent}%")
+                
+        if transformations['rotation'] != 0:
+            transform_description.append(f"دوران: {transformations['rotation']}°")
+            
+        if transformations['flip_h']:
+            transform_description.append("قلب أفقي")
+            
+        if transformations['flip_v']:
+            transform_description.append("قلب رأسي")
+        
+        # Ajouter les filtres originaux à la description
+        original_filters = history_entry.filters_applied
+        if original_filters and original_filters != "لا تعديلات":
+            transform_description.append(original_filters)
+            
+        # Joindre toutes les descriptions
+        transforms_str = ', '.join(transform_description) if transform_description else "تعديلات الشكل فقط"
+        
+        # Déterminer si nous travaillons sur une image originale ou déjà modifiée
+        is_edited = original_filename.startswith('edited_') or original_filename.startswith('transformed_')
+        
+        # Créer une nouvelle entrée dans l'historique
+        new_history = FilterHistory(
+            original_filename=history_entry.original_filename if is_edited else original_filename,
+            edited_filename=new_edited_filename,
+            filters_applied=transforms_str,
+            user_id=session['user_id']
+        )
+        
+        db.session.add(new_history)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True, 
+            'filename': new_edited_filename,
+            'message': 'تم حفظ الصورة بنجاح'
+        })
+        
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
