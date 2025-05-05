@@ -369,3 +369,58 @@ body {
     margin-left: 10px;
     color: white;
 }
+
+/* Styles pour les toasts */
+.toast-container {
+    z-index: 1060;
+}
+
+.toast {
+    opacity: 1;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease-out;
+    animation: toast-slide-in 0.3s;
+}
+
+.toast.hide {
+    animation: toast-slide-out 0.3s forwards;
+}
+
+@keyframes toast-slide-in {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes toast-slide-out {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+}
+
+/* Couleurs pour les différents types de toasts */
+.bg-success {
+    background-color: #10b981 !important;
+}
+
+.bg-danger {
+    background-color: #ef4444 !important;
+}
+
+.bg-warning {
+    background-color: #f59e0b !important;
+}
+
+.bg-info {
+    background-color: #3b82f6 !important;
+}

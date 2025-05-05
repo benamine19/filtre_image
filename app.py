@@ -110,7 +110,7 @@ def signup():
 def logout():
     session.pop('user_id', None)
     session.pop('username', None)
-    flash('تم تسجيل الخروج بنجاح', 'info')
+    flash('تم تسجيل الخروج بنجاح', 'success')  # Changé de 'info' à 'success' pour un toast vert
     return redirect(url_for('login'))
 
 @app.route('/upload', methods=['POST'])
@@ -135,7 +135,7 @@ def upload():
         file_extension = os.path.splitext(original_filename)[1]
         
         # Créer un nouveau nom de fichier avec timestamp et identifiant unique
-        unique_filename = f"{timestamp}_{unique_id}{file_extension}"
+        unique_filename = f"original_{timestamp}_{unique_id}{file_extension}"
         
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
         file.save(filepath)
@@ -365,10 +365,26 @@ def delete_image(image_id):
             original_path = os.path.join(app.config['UPLOAD_FOLDER'], image_entry.original_filename)
             edited_path = os.path.join(app.config['UPLOAD_FOLDER'], image_entry.edited_filename)
             
-            # Supprimer les fichiers s'ils existent
-            if os.path.exists(original_path):
+            # Vérifier si l'original est utilisé par d'autres entrées
+            other_entries_using_original = FilterHistory.query.filter(
+                FilterHistory.original_filename == image_entry.original_filename,
+                FilterHistory.id != image_id,
+                FilterHistory.user_id == session['user_id']
+            ).count()
+            
+            # Vérifier si l'image éditée est utilisée comme original par d'autres entrées
+            other_entries_using_edited_as_original = FilterHistory.query.filter(
+                FilterHistory.original_filename == image_entry.edited_filename,
+                FilterHistory.id != image_id,
+                FilterHistory.user_id == session['user_id']
+            ).count()
+            
+            # Supprimer le fichier original uniquement s'il n'est pas utilisé ailleurs
+            if os.path.exists(original_path) and other_entries_using_original == 0:
                 os.remove(original_path)
-            if os.path.exists(edited_path):
+                
+            # Supprimer le fichier édité uniquement s'il n'est pas utilisé comme original ailleurs
+            if os.path.exists(edited_path) and other_entries_using_edited_as_original == 0:
                 os.remove(edited_path)
                 
             # Supprimer l'entrée de la base de données
@@ -445,10 +461,10 @@ def save_transformed_image():
             transform_description.append("قلب رأسي")
         
         # Ajouter les filtres originaux à la description
-        original_filters = history_entry.filters_applied
+        original_filters = history_entry.filters_applied   
         if original_filters and original_filters != "لا تعديلات":
             transform_description.append(original_filters)
-            
+        
         # Joindre toutes les descriptions
         transforms_str = ', '.join(transform_description) if transform_description else "تعديلات الشكل فقط"
         
@@ -466,14 +482,17 @@ def save_transformed_image():
         db.session.add(new_history)
         db.session.commit()
         
-        return jsonify({
-            'success': True, 
-            'filename': new_edited_filename,
-            'message': 'تم حفظ الصورة بنجاح'
-        })
+        # Ajouter un message flash pour confirmer la transformation
+        flash('تم حفظ الصورة المعدلة بنجاح', 'success')
         
+        return jsonify({
+            'success': True,
+            'message': 'تم حفظ الصورة بنجاح',
+            'filename': new_edited_filename,
+        })
     except Exception as e:
         print(f"Error: {str(e)}")
+        flash('حدث خطأ أثناء حفظ الصورة المعدلة', 'danger')
         return jsonify({'success': False, 'error': str(e)}), 500
 
 if __name__ == "__main__":
